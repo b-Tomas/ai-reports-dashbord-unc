@@ -8,6 +8,17 @@ declare global {
 			apiKey: { id: string; name: string } | null;
 			/** Incident touched by the handler, for the api_usage log. */
 			incidentId: string | null;
+			/** Per-request Supabase SSR client (cookie-bound, anon key) — dashboard routes. */
+			supabase: import('@supabase/supabase-js').SupabaseClient;
+			/** Returns the validated session + user (or nulls). */
+			safeGetSession: () => Promise<{
+				session: import('@supabase/supabase-js').Session | null;
+				user: import('@supabase/supabase-js').User | null;
+			}>;
+			session: import('@supabase/supabase-js').Session | null;
+			user: import('@supabase/supabase-js').User | null;
+			/** Allowlist role for the logged-in user (null = not allowlisted). */
+			role: import('$lib/server/auth').Role | null;
 		}
 		// interface PageData {}
 		// interface PageState {}
