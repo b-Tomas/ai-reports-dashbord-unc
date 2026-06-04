@@ -226,3 +226,49 @@ export async function softDeleteIncident(supabase: SupabaseClient, id: string): 
 	if (error) fail(error);
 	return (rows?.length ?? 0) > 0;
 }
+
+// ---------------------------------------------------------------------------
+// Trash view (SPEC §5.1 `/admin/trash`, §8) — soft-deleted rows only.
+// ---------------------------------------------------------------------------
+const TRASH_COLUMNS = 'id, created_at, updated_at, deleted_at, data';
+
+/** A soft-deleted report, carrying the deletion timestamp for the trash UI. */
+export type DeletedIncident = IncidentReport & { deleted_at: string };
+
+/** List soft-deleted reports, newest deletion first. */
+export async function listDeletedIncidents(supabase: SupabaseClient): Promise<DeletedIncident[]> {
+	const { data: rows, error } = await supabase
+		.from(TABLE)
+		.select(TRASH_COLUMNS)
+		.not('deleted_at', 'is', null)
+		.order('deleted_at', { ascending: false });
+	if (error) fail(error);
+	return (rows ?? []).map((row) => ({
+		...toIncidentReport(row),
+		deleted_at: row.deleted_at instanceof Date ? row.deleted_at.toISOString() : row.deleted_at
+	}));
+}
+
+/** Restore a soft-deleted report (clear deleted_at). Returns false if not in trash. */
+export async function restoreIncident(supabase: SupabaseClient, id: string): Promise<boolean> {
+	const { data: rows, error } = await supabase
+		.from(TABLE)
+		.update({ deleted_at: null })
+		.eq('id', id)
+		.not('deleted_at', 'is', null)
+		.select('id');
+	if (error) fail(error);
+	return (rows?.length ?? 0) > 0;
+}
+
+/** Permanently delete a row — only if it is already in the trash (soft-deleted). */
+export async function hardDeleteIncident(supabase: SupabaseClient, id: string): Promise<boolean> {
+	const { data: rows, error } = await supabase
+		.from(TABLE)
+		.delete()
+		.eq('id', id)
+		.not('deleted_at', 'is', null)
+		.select('id');
+	if (error) fail(error);
+	return (rows?.length ?? 0) > 0;
+}

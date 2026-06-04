@@ -34,7 +34,14 @@
 			<div
 				class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm"
 			>
-				<a href={resolve('/')} class="font-medium text-teal-primary hover:underline">Reportes</a>
+				<nav class="flex items-center gap-4">
+					<a href={resolve('/')} class="font-medium text-teal-primary hover:underline">Reportes</a>
+					{#if data.role === 'admin'}
+						<a href={resolve('/admin')} class="font-medium text-teal-primary hover:underline">
+							Administración
+						</a>
+					{/if}
+				</nav>
 				<div class="flex items-center gap-3 text-muted">
 					<span class="truncate">{data.user.email} · {roleLabel}</span>
 					<form method="POST" action="/auth/signout">
