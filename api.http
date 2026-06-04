@@ -1,0 +1,76 @@
+### Incident Reports API — manual checks (SPEC §4 / §7)
+### Use with the VS Code "REST Client" extension, or translate to curl.
+### Set @apiKey to a plaintext key issued from /admin (Block 7) or seeded for testing.
+
+@baseUrl = http://localhost:5173
+@apiKey = irk_REPLACE_ME
+@id = REPLACE_WITH_ID_FROM_CREATE
+
+### Create — 201 + full report with server id/created_at
+POST {{baseUrl}}/api/v1/incidents
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "timestamp": "2026-06-04T18:30:00Z",
+  "location": "Laboratorio Central - Mesa 4",
+  "incident_type": "DERRAME",
+  "severity_level": "MEDIO",
+  "chemicals_involved": [
+    { "name": "Ácido Acético Glacial", "hazard_class": "Clase B y Clase E", "estimated_quantity": "250 ml" }
+  ],
+  "actions_taken": [
+    "Se evacuó el área inmediata.",
+    "Se utilizó equipo de protección personal."
+  ],
+  "medical_assistance_required": false,
+  "status": "ABIERTO"
+}
+
+### Invalid payload — 422 with field-level details (bad enum + empty actions_taken)
+POST {{baseUrl}}/api/v1/incidents
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "timestamp": "2026-06-04T18:30:00Z",
+  "location": "Lab",
+  "incident_type": "EXPLOSION",
+  "severity_level": "MEDIO",
+  "actions_taken": [],
+  "medical_assistance_required": false,
+  "status": "ABIERTO"
+}
+
+### Missing / no key — 401 (still logged to api_usage with null key)
+GET {{baseUrl}}/api/v1/incidents
+
+### List — filters + pagination, excludes soft-deleted
+GET {{baseUrl}}/api/v1/incidents?status=ABIERTO&incident_type=DERRAME&limit=10&offset=0
+Authorization: Bearer {{apiKey}}
+
+### List by date range
+GET {{baseUrl}}/api/v1/incidents?from=2026-01-01T00:00:00Z&to=2026-12-31T23:59:59Z
+Authorization: Bearer {{apiKey}}
+
+### Get by id — 200 (404 if unknown or soft-deleted)
+GET {{baseUrl}}/api/v1/incidents/{{id}}
+Authorization: Bearer {{apiKey}}
+
+### Patch — status transition persists, bumps updated_at
+PATCH {{baseUrl}}/api/v1/incidents/{{id}}
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{ "status": "EN_PROGRESO" }
+
+### Patch invalid — 422 (cannot empty actions_taken)
+PATCH {{baseUrl}}/api/v1/incidents/{{id}}
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{ "actions_taken": [] }
+
+### Delete — 204 soft delete (sets deleted_at); subsequent GET ⇒ 404
+DELETE {{baseUrl}}/api/v1/incidents/{{id}}
+Authorization: Bearer {{apiKey}}

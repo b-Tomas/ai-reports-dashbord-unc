@@ -2,21 +2,22 @@
 
 SQL migrations for the Incident Reports Dashboard. Schema follows `PRD/SPEC.md` §3.
 
-| File                                             | Creates                                                                                |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| `migrations/20260604000001_init.sql`             | Enums, `incidents` / `api_keys` / `api_usage` / `dashboard_access`, indexes, triggers. |
-| `migrations/20260604000002_seed_super_admin.sql` | `ensure_super_admin()` function + bootstrap call (seeds the first admin).              |
+| File                                              | Creates                                                                                |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `migrations/20260604000001_init.sql`              | Enums, `incidents` / `api_keys` / `api_usage` / `dashboard_access`, indexes, triggers. |
+| `migrations/20260604000002_seed_super_admin.sql`  | `ensure_super_admin()` function + bootstrap call (seeds the first admin).              |
+| `migrations/20260604000003_incident_event_at.sql` | `incidents.event_at` generated column + index for API date-range filtering.            |
 
 ## MVP notes
 
 - **No RLS.** No Row Level Security policies are defined. The SvelteKit server uses the
   Supabase **service-role** key for all DB access (the `/api/v1` routes and the dashboard
   server loads/actions). Do **not** grant the anon/public role access to these tables.
-- **Date filtering.** `incidents.data->>'timestamp'` is indexed via the `IMMUTABLE`
-  helper `public.parse_iso_ts(text)`. Block 4's `from`/`to` range filters **must** call the
-  same function (`where public.parse_iso_ts(data->>'timestamp') between …`) so the query can
-  use `idx_incidents_timestamp`. This is safe because payload timestamps are ISO-8601 **with
-  an explicit offset** (`Z` or `±hh:mm`), enforced by zod.
+- **Date filtering.** `incidents.event_at` is a `STORED` generated column equal to
+  `public.parse_iso_ts(data->>'timestamp')`, indexed by `idx_incidents_event_at` (migration
+  0003). The API filters and orders on `event_at` directly, since PostgREST can't call a
+  function inside a filter. Safe because payload timestamps are ISO-8601 **with an explicit
+  offset** (`Z` or `±hh:mm`), enforced by zod, making the cast deterministic.
 - `gen_random_uuid()` is built into PostgreSQL 13+ (Supabase runs 15+) — no extension needed.
 
 ## Applying the migrations

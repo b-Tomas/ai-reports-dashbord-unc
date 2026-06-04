@@ -38,9 +38,9 @@ $$;
 -- A bare `(data ->> 'timestamp')::timestamptz` cannot be indexed: PostgreSQL
 -- treats text→timestamptz as STABLE (it can depend on the session TimeZone for
 -- strings WITHOUT an offset). Our payloads are ISO-8601 WITH an explicit offset
--- ('Z' or ±hh:mm) — enforced by zod (Block 2) — so the cast is deterministic and
--- can be safely marked IMMUTABLE. Block 4's date-range filters MUST call this
--- same function so the query can use idx_incidents_timestamp.
+-- ('Z' or ±hh:mm) — enforced by zod — so the cast is deterministic and can be
+-- safely marked IMMUTABLE. Migration 0003 uses this function for the `event_at`
+-- generated column that the API filters/orders on.
 create or replace function public.parse_iso_ts(p_text text)
 returns timestamptz
 language sql
