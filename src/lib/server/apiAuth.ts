@@ -56,6 +56,11 @@ export function createApiV1Handle(deps: ApiV1Deps) {
 	return async function handleApiV1(event: RequestEvent, resolve: Resolve): Promise<Response> {
 		const start = now();
 		const supabase = deps.createClient();
+		// Share this single service-role client with the route handlers (SPEC §2: one
+		// PostgREST client per request, not two). Block 5's human anon/SSR client will
+		// be a separate `locals.supabase` — keep the names distinct to avoid mixing
+		// service-role and anon privileges.
+		event.locals.serviceClient = supabase;
 		const method = event.request.method;
 		const path = event.url.pathname;
 		const route = resolveRouteName(method, path);

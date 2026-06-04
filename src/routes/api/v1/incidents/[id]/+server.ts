@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createServiceClient } from '$lib/server/supabase';
 import { IncidentReportPatch } from '$lib/domain/incident';
 import { apiError, validationError } from '$lib/domain/errors';
 import { getIncident, updateIncident, softDeleteIncident, isUuid } from '$lib/server/incidentsRepo';
@@ -10,13 +9,14 @@ const notFound = () => json(apiError('not_found', 'Incident not found'), { statu
 // GET /api/v1/incidents/{id} (SPEC §4.2) — soft-deleted ⇒ 404
 export const GET: RequestHandler = async ({ params, locals }) => {
 	if (!isUuid(params.id)) return notFound();
-	const supabase = createServiceClient();
+	const supabase = locals.serviceClient;
 	try {
 		const report = await getIncident(supabase, params.id);
 		if (!report) return notFound();
 		locals.incidentId = report.id;
 		return json(report);
-	} catch {
+	} catch (err) {
+		console.error('get_incident failed', err);
 		return json(apiError('internal_error', 'Failed to load incident'), { status: 500 });
 	}
 };
@@ -24,7 +24,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 // PATCH /api/v1/incidents/{id} (SPEC §4.4) — partial merge, bumps updated_at
 export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 	if (!isUuid(params.id)) return notFound();
-	const supabase = createServiceClient();
+	const supabase = locals.serviceClient;
 
 	let body: unknown;
 	try {
@@ -44,7 +44,8 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 		}
 		if (result.reason === 'not_found') return notFound();
 		return json(validationError(result.error), { status: 422 });
-	} catch {
+	} catch (err) {
+		console.error('update_incident failed', err);
 		return json(apiError('internal_error', 'Failed to update incident'), { status: 500 });
 	}
 };
@@ -52,13 +53,14 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 // DELETE /api/v1/incidents/{id} (SPEC §4.5) — soft delete, 204
 export const DELETE: RequestHandler = async ({ params, locals }) => {
 	if (!isUuid(params.id)) return notFound();
-	const supabase = createServiceClient();
+	const supabase = locals.serviceClient;
 	try {
 		const deleted = await softDeleteIncident(supabase, params.id);
 		if (!deleted) return notFound();
 		locals.incidentId = params.id;
 		return new Response(null, { status: 204 });
-	} catch {
+	} catch (err) {
+		console.error('delete_incident failed', err);
 		return json(apiError('internal_error', 'Failed to delete incident'), { status: 500 });
 	}
 };

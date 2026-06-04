@@ -4,6 +4,8 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
+			/** Service-role Supabase client, set by the hook for /api/v1 routes. */
+			serviceClient: import('@supabase/supabase-js').SupabaseClient;
 			/** Authenticated API key for /api/v1 requests (null otherwise). */
 			apiKey: { id: string; name: string } | null;
 			/** Incident touched by the handler, for the api_usage log. */

@@ -54,13 +54,28 @@ export interface ListResult {
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
 
+// Accept either a full offset datetime (e.g. 2026-01-01T00:00:00Z) or a date-only
+// ISO string (e.g. 2026-01-01). Date-only values are normalized to explicit UTC
+// bounds below so results don't depend on server timezone.
+const isoInstantOrDate = z.union([z.iso.datetime({ offset: true }), z.iso.date()]);
+
 const listFilterSchema = z.object({
 	status: statusSchema.optional(),
 	incident_type: incidentTypeSchema.optional(),
 	severity_level: severityLevelSchema.optional(),
-	from: z.iso.datetime({ offset: true }).optional(),
-	to: z.iso.datetime({ offset: true }).optional()
+	from: isoInstantOrDate.optional(),
+	to: isoInstantOrDate.optional()
 });
+
+/** Expand a date-only `from` to the start of that UTC day; pass instants through. */
+function normalizeFrom(v: string | undefined): string | undefined {
+	return !v || v.includes('T') ? v : `${v}T00:00:00Z`;
+}
+
+/** Expand a date-only `to` to the inclusive end of that UTC day; pass instants through. */
+function normalizeTo(v: string | undefined): string | undefined {
+	return !v || v.includes('T') ? v : `${v}T23:59:59.999Z`;
+}
 
 function clampInt(raw: string | undefined, def: number, min: number, max: number): number {
 	if (raw === undefined) return def;
@@ -89,6 +104,8 @@ export function parseListParams(
 		ok: true,
 		params: {
 			...filters.data,
+			from: normalizeFrom(filters.data.from),
+			to: normalizeTo(filters.data.to),
 			limit: clampInt(get('limit'), DEFAULT_LIMIT, 1, MAX_LIMIT),
 			offset: clampInt(get('offset'), 0, 0, Number.MAX_SAFE_INTEGER)
 		}

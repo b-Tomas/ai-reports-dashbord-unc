@@ -38,7 +38,8 @@ export function resolveRouteName(method: string, pathname: string): string {
 export async function logApiUsage(supabase: SupabaseClient, row: ApiUsageRow): Promise<void> {
 	try {
 		await supabase.from('api_usage').insert(row);
-	} catch {
-		// Logging must never break the request (SPEC §6).
+	} catch (err) {
+		// Logging must never break the request (SPEC §6) — swallow, but stay observable.
+		console.warn('api_usage insert failed', err);
 	}
 }

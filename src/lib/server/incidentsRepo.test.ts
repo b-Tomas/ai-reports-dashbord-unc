@@ -48,6 +48,25 @@ describe('parseListParams', () => {
 		expect(r.ok).toBe(true);
 	});
 
+	it('accepts date-only range and normalizes to inclusive UTC bounds', () => {
+		const r = parseListParams(sp('from=2026-01-01&to=2026-12-31'));
+		expect(r.ok).toBe(true);
+		if (r.ok)
+			expect(r.params).toMatchObject({
+				from: '2026-01-01T00:00:00Z',
+				to: '2026-12-31T23:59:59.999Z'
+			});
+	});
+
+	it('passes full offset datetimes through unchanged', () => {
+		const r = parseListParams(sp('from=2026-01-01T08:30:00Z'));
+		if (r.ok) expect(r.params.from).toBe('2026-01-01T08:30:00Z');
+	});
+
+	it('rejects a malformed date', () => {
+		expect(parseListParams(sp('from=2026-13-40')).ok).toBe(false);
+	});
+
 	it('rejects a bad enum filter', () => {
 		expect(parseListParams(sp('status=CERRADO')).ok).toBe(false);
 	});
