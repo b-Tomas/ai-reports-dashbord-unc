@@ -36,6 +36,9 @@
 			>
 				<nav class="flex items-center gap-4">
 					<a href={resolve('/')} class="font-medium text-teal-primary hover:underline">Reportes</a>
+					<a href={resolve('/metrics')} class="font-medium text-teal-primary hover:underline">
+						Métricas
+					</a>
 					{#if data.role === 'admin'}
 						<a href={resolve('/admin')} class="font-medium text-teal-primary hover:underline">
 							Administración

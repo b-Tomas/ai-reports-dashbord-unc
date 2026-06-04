@@ -7,6 +7,7 @@ SQL migrations for the Incident Reports Dashboard. Schema follows `PRD/SPEC.md` 
 | `migrations/20260604000001_init.sql`              | Enums, `incidents` / `api_keys` / `api_usage` / `dashboard_access`, indexes, triggers. |
 | `migrations/20260604000002_seed_super_admin.sql`  | `ensure_super_admin()` function + bootstrap call (seeds the first admin).              |
 | `migrations/20260604000003_incident_event_at.sql` | `incidents.event_at` generated column + index for API date-range filtering.            |
+| `migrations/20260604000004_api_usage_metrics.sql` | `api_usage_daily()` / `api_usage_by_key()` aggregation functions for `/metrics`.       |
 
 ## MVP notes
 
