@@ -15,6 +15,7 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { createApiV1Handle } from '$lib/server/apiAuth';
 import { createServiceClient } from '$lib/server/supabase';
 import { decideAccess, resolveRole } from '$lib/server/auth';
+import { runBootstrapOnce } from '$lib/server/bootstrap';
 
 const apiV1 = createApiV1Handle({ createClient: createServiceClient });
 
@@ -69,6 +70,9 @@ const authGuardHandle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/v1')) return resolve(event);
 	// Asset / unmatched requests have no route id — never guard them.
 	if (!event.route.id) return resolve(event);
+
+	// Seed the first admin from SUPER_ADMIN_EMAIL once per server instance.
+	await runBootstrapOnce();
 
 	const { session, user } = await event.locals.safeGetSession();
 	event.locals.session = session;
