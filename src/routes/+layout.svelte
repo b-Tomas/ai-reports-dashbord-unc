@@ -12,14 +12,16 @@
 
 <div class="flex min-h-screen flex-col">
 	<!-- Branding header (placeholder shell — Block 9 finalizes) -->
-	<header class="bg-teal-primary text-white shadow">
+	<header class="border-b-4 border-teal-primary bg-surface shadow-sm">
 		<div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-			<img src="/FCEFyN.png" alt="FCEFyN" class="h-12 w-auto" />
+			<img src="/FCEFyN.png" alt="FCEFyN" class="h-11 w-auto sm:h-12" />
 			<div class="min-w-0 flex-1 text-center">
-				<h1 class="truncate text-lg font-semibold sm:text-xl">Panel de Reportes de Incidentes</h1>
-				<p class="text-xs text-gold sm:text-sm">FCEFyN · Universidad Nacional de Córdoba</p>
+				<h1 class="truncate text-lg font-semibold text-teal-primary sm:text-xl">
+					Panel de Reportes de Incidentes
+				</h1>
+				<p class="text-xs text-teal-alt sm:text-sm">FCEFyN · Universidad Nacional de Córdoba</p>
 			</div>
-			<img src="/UNC.jpg" alt="UNC" class="h-12 w-auto rounded-sm" />
+			<img src="/UNC.jpg" alt="UNC" class="h-11 w-auto sm:h-12" />
 		</div>
 	</header>
 
