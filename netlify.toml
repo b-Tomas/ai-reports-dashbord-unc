@@ -1,0 +1,5 @@
+# Netlify build config for SvelteKit (@sveltejs/adapter-netlify).
+# The adapter emits serverless functions + static assets into `build/`.
+[build]
+  command = "npm run build"
+  publish = "build"

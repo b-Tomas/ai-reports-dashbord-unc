@@ -1,0 +1,69 @@
+@import 'tailwindcss';
+
+/*
+ * FCEFyN (UNC) theme tokens — SPEC §5.3.
+ * Declared in @theme so Tailwind generates utilities (bg-teal-primary,
+ * text-teal-primary, border-border, …) AND exposes them as CSS variables
+ * (var(--color-teal-primary)). Spec-named aliases (--teal-primary, …) are
+ * defined in :root below for direct CSS use.
+ */
+@theme {
+	/* Brand — teal */
+	--color-teal-primary: #205650;
+	--color-teal-alt: #2c5f66;
+	--color-teal-dark: #19433f;
+
+	/* Brand — gold */
+	--color-gold: #ddcf82;
+	--color-gold-alt: #d8c76e;
+	--color-gold-dark: #746720;
+
+	/* Neutrals / surfaces */
+	--color-text: #363636;
+	--color-bg: #f5f5f5;
+	--color-surface: #ffffff;
+	--color-border: #dbdbdb;
+	--color-muted: #707070;
+
+	/* Severity cues (independent of brand) — SPEC §5.3 */
+	--color-severity-bajo: #2e7d32; /* green  */
+	--color-severity-medio: #ddcf82; /* gold   */
+	--color-severity-alto: #e67e22; /* orange */
+	--color-severity-critico: #c0392b; /* red    */
+}
+
+/* Spec §5.3 semantic CSS-variable aliases (shorter names for hand-written CSS). */
+:root {
+	--teal-primary: var(--color-teal-primary);
+	--teal-alt: var(--color-teal-alt);
+	--teal-dark: var(--color-teal-dark);
+	--gold: var(--color-gold);
+	--gold-alt: var(--color-gold-alt);
+	--gold-dark: var(--color-gold-dark);
+	--text: var(--color-text);
+	--bg: var(--color-bg);
+	--surface: var(--color-surface);
+	--border: var(--color-border);
+	--muted: var(--color-muted);
+}
+
+/* Base global styles — SPEC §5.2 / Block 0 */
+html {
+	background-color: var(--color-bg);
+	color: var(--color-text);
+}
+
+body {
+	min-height: 100vh;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		Helvetica,
+		Arial,
+		sans-serif;
+}
