@@ -1,8 +1,12 @@
 <script lang="ts">
 	import '../app.css';
+	import { resolve } from '$app/paths';
 	import favicon from '$lib/assets/favicon.svg';
+	import type { LayoutData } from './$types';
 
-	let { children } = $props();
+	let { children, data }: { children: import('svelte').Snippet; data: LayoutData } = $props();
+
+	const roleLabel = $derived(data.role === 'admin' ? 'Administrador' : 'Visualizador');
 </script>
 
 <svelte:head>
@@ -24,6 +28,27 @@
 			<img src="/UNC.jpg" alt="UNC" class="h-11 w-auto sm:h-12" />
 		</div>
 	</header>
+
+	{#if data.user}
+		<div class="border-b border-border bg-surface">
+			<div
+				class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm"
+			>
+				<a href={resolve('/')} class="font-medium text-teal-primary hover:underline">Reportes</a>
+				<div class="flex items-center gap-3 text-muted">
+					<span class="truncate">{data.user.email} · {roleLabel}</span>
+					<form method="POST" action="/auth/signout">
+						<button
+							type="submit"
+							class="rounded border border-border px-2 py-1 transition hover:bg-bg"
+						>
+							Cerrar sesión
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	<main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
 		{@render children()}

@@ -27,7 +27,19 @@ export function isUuid(value: string): boolean {
 }
 
 function fail(error: unknown): never {
-	const message = error instanceof Error ? error.message : String(error);
+	// supabase-js rejects with a PostgrestError plain object ({ message, details,
+	// hint, code }), not an Error — so `String(error)` would be "[object Object]".
+	// Pull out the useful fields instead.
+	let message: string;
+	if (error instanceof Error) {
+		message = error.message;
+	} else if (error && typeof error === 'object') {
+		const e = error as { message?: string; details?: string; hint?: string; code?: string };
+		message = [e.message, e.details, e.hint, e.code && `(${e.code})`].filter(Boolean).join(' — ');
+		if (!message) message = JSON.stringify(error);
+	} else {
+		message = String(error);
+	}
 	throw new Error(`incidents repo: ${message}`);
 }
 
