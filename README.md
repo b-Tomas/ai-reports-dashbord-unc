@@ -1,29 +1,56 @@
-# Panel de Reportes de Incidentes — FCEFyN, UNC
+# Panel de Reportes de Incidentes - FCEFyN, UNC
 
-Dashboard for laboratory incident reports. A separate LangChain agent writes
-reports over a Bearer-key REST API (`/api/v1`); humans review them in a Google-
-OAuth dashboard gated by an admin-managed allowlist.
+> Group deliverable for the artificial intelligence course at FCEFyN, Universidad Nacional de Córdoba. See [`notebooks/TL2.ipynb`](notebooks/TL2.ipynb).
+
+> [!NOTE]
+>
+> **AI Code disclaimer**
+>
+> This project uses AI-generated code
+
+A RAG system over the UNC Safety Manual plus a LangChain agent that consumes it.
+A lab worker describes an incident in plain language, the agent checks the
+manual, and it files a structured report.
+
+This repository is the service that backs that agent. It exposes the REST API
+(`/api/v1`) the agent calls to create and update reports, and a dashboard where
+lab staff review, filter, and manage them. Reports can come from either side:
+the agent over a Bearer key, or a person through the dashboard (Google OAuth).
+
+Live: <https://ai-2026-tl2-reports-dashboard.netlify.app/> (sign in with an
+`@mi.unc.edu.ar` or `@unc.edu.ar` account).
+
+## Demo
+
+Reports list, with filters and pagination:
+
+![Reports dashboard](demo/dashboard.png)
+
+Agent API metrics, built from the `api_usage` log:
+
+![API metrics](demo/api-metrics.png)
 
 ## Stack
 
-SvelteKit 2 · TypeScript · Tailwind CSS v4 · Supabase
-(Postgres + Auth + PostgREST) · Chart.js · `@sveltejs/adapter-netlify`.
+Built with SvelteKit and TypeScript, styled with Tailwind, charts with Chart.js.
+Supabase provides Postgres, auth, and the auto-generated REST layer, and the app
+deploys to Netlify.
 
-The server uses the Supabase **service-role** key for all DB access (no RLS).
-Agents authenticate with hashed API keys; humans with Google OAuth + the
-`dashboard_access` allowlist (role = exact-email match beats domain match).
+The server talks to Supabase with the service-role key for all database access.
+Agents authenticate with hashed API keys; people sign in with
+Google OAuth and are authorized against the `dashboard_access` allowlist.
 
 ## Routes
 
-| Route               | Who            | Purpose                                       |
-| ------------------- | -------------- | --------------------------------------------- |
-| `/`                 | allowlisted    | Reports list — filters + pagination           |
-| `/incidents/{id}`   | allowlisted    | Detail; admins edit status + soft-delete      |
-| `/metrics`          | allowlisted    | API-usage charts (from `api_usage`)           |
-| `/admin`            | **admin**      | Allowlist + API keys (issue/revoke)           |
-| `/admin/trash`      | **admin**      | Soft-deleted reports: restore / purge         |
-| `/login`, `/auth/*` | public         | Google OAuth                                  |
-| `/api/v1/incidents` | agent (Bearer) | CRUD — see [`api.http`](api.http) and SPEC §4 |
+| Route               | Who            | Purpose                                    |
+| ------------------- | -------------- | ------------------------------------------ |
+| `/`                 | allowlisted    | Reports list (filters + pagination)        |
+| `/incidents/{id}`   | allowlisted    | Detail; admins edit status + soft-delete   |
+| `/metrics`          | allowlisted    | API-usage charts (from `api_usage`)        |
+| `/admin`            | **admin**      | Allowlist + API keys (issue/revoke)        |
+| `/admin/trash`      | **admin**      | Soft-deleted reports: restore / purge      |
+| `/login`, `/auth/*` | public         | Google OAuth                               |
+| `/api/v1/incidents` | agent (Bearer) | CRUD (see [`api.http`](api.http))          |
 
 ## Setup
 
@@ -39,11 +66,10 @@ npm run dev            # http://localhost:5173
 | --------------------------- | ----------------------------------------------- |
 | `PUBLIC_SUPABASE_URL`       | Project URL (safe on client).                   |
 | `PUBLIC_SUPABASE_ANON_KEY`  | Anon key (safe on client).                      |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Never ship to the client.      |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only. Never shipped to the client.       |
 | `SUPER_ADMIN_EMAIL`         | First admin, seeded on boot if no admin exists. |
 
-Google OAuth is configured in the **Supabase Auth dashboard** (provider + redirect
-URLs), not via app env vars.
+Google OAuth is configured in the Supabase Auth dashboard + Google Cloud Console.
 
 ### Database
 
@@ -60,30 +86,31 @@ With `SUPER_ADMIN_EMAIL` set, the app seeds it on the first request. To seed
 manually (no redeploy), run in the Supabase SQL editor:
 
 ```sql
-select public.ensure_super_admin('you@unc.edu.ar');
+select public.ensure_super_admin('you@mi.unc.edu.ar');
 ```
 
-The email must match the Google account you sign in with. Only seeds when the
+The email must match the Google account you sign in with. It only seeds when the
 allowlist has no admin yet; manage further entries from `/admin`.
 
 ### Issuing an agent API key
 
-`/admin` → **Claves de API** → _Emitir clave_. The plaintext is shown **once**;
-copy it. Use it as `Authorization: Bearer <key>` against `/api/v1` (try the
-requests in [`api.http`](api.http)). Revoke from the same screen.
+Go to `/admin`, open **Claves de API**, and choose _Emitir clave_. The plaintext
+key is shown once, so copy it. Use it as `Authorization: Bearer <key>` against
+`/api/v1` (the requests in [`api.http`](api.http) are a good starting point).
+Revoke from the same screen.
 
 ### Testing the API with curl
 
-Full contract in [SPEC §4](PRD/SPEC.md). The same flows in REST Client format
-live in [`api.http`](api.http). Set the base URL and key once, then run the
-commands below (uses `-i` to show the status line; `jq` is optional):
+Full API contract in [PRD/SPEC.md](PRD/SPEC.md). The same flows in REST Client
+format live in [`api.http`](api.http). Set the base URL and key once, then run
+the commands below (`-i` shows the status line; `jq` is optional):
 
 ```sh
 BASE=http://localhost:5173
-KEY=irk_REPLACE_ME            # plaintext key from /admin → Claves de API
+KEY=REPLACE_ME
 ```
 
-**Create** (`201` + the full report with server `id`/`created_at`):
+**Create** (`201` with the full report, including the server `id`/`created_at`):
 
 ```sh
 curl -i -X POST "$BASE/api/v1/incidents" \
@@ -111,7 +138,7 @@ ID=$(curl -s -X POST "$BASE/api/v1/incidents" \
   | jq -r .id)
 ```
 
-**Invalid create** (`422` with field-level `details` — bad enum + empty `actions_taken`):
+**Invalid create** (`422` with field-level `details`, here a bad enum and an empty `actions_taken`):
 
 ```sh
 curl -i -X POST "$BASE/api/v1/incidents" \
@@ -125,7 +152,7 @@ curl -i -X POST "$BASE/api/v1/incidents" \
 curl -i "$BASE/api/v1/incidents"
 ```
 
-**List** with filters + pagination (excludes soft-deleted); `from`/`to` accept a
+**List** with filters and pagination (excludes soft-deleted); `from`/`to` accept a
 date or a full ISO instant:
 
 ```sh
@@ -142,7 +169,7 @@ curl -s -H "Authorization: Bearer $KEY" \
 curl -s -H "Authorization: Bearer $KEY" "$BASE/api/v1/incidents/$ID"
 ```
 
-**Patch** — partial merge, persists the status transition and bumps `updated_at`:
+**Patch**, a partial merge that persists the status transition and bumps `updated_at`:
 
 ```sh
 curl -i -X PATCH "$BASE/api/v1/incidents/$ID" \
@@ -150,7 +177,7 @@ curl -i -X PATCH "$BASE/api/v1/incidents/$ID" \
   -d '{"status":"EN_PROGRESO"}'
 ```
 
-**Delete** — soft delete (`204`; sets `deleted_at`, so the next GET returns `404`):
+**Delete**, a soft delete (`204`; sets `deleted_at`, so the next GET returns `404`):
 
 ```sh
 curl -i -X DELETE "$BASE/api/v1/incidents/$ID" -H "Authorization: Bearer $KEY"
@@ -168,6 +195,6 @@ npm run build    # production build (adapter-netlify)
 ## Deploy (Netlify)
 
 `netlify.toml` builds with `@sveltejs/adapter-netlify` (serverless functions, so
-Supabase is reached over HTTP — not raw TCP). Set the four env vars above in the
+Supabase is reached over HTTP). Set the four env vars above in the
 Netlify site settings, then deploy. After deploy, sign in with the
 `SUPER_ADMIN_EMAIL` account to bootstrap the first admin.
