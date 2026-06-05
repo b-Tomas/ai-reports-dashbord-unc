@@ -47,6 +47,9 @@
 						<a href={resolve('/admin')} class="font-medium text-teal-primary hover:underline">
 							Administración
 						</a>
+						<a href={resolve('/admin/trash')} class="font-medium text-teal-primary hover:underline">
+							Papelera
+						</a>
 					{/if}
 				</nav>
 				<div class="flex items-center gap-3 text-muted">
