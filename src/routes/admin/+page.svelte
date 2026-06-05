@@ -8,6 +8,8 @@
 
 	const typeLabel = (t: string) => (t === 'email' ? 'Email' : 'Dominio');
 	const roleLabel = (r: string) => (r === 'admin' ? 'Administrador' : 'Visualizador');
+	const sourceLabel = (s: string | null) =>
+		s === 'email' ? 'Explícito' : s === 'domain' ? 'Dominio' : 'Sin acceso';
 </script>
 
 <section class="space-y-8">
@@ -124,6 +126,98 @@
 											>Quitar</button
 										>
 									</form>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		{/if}
+	</div>
+
+	<!-- ===================== Usuarios ===================== -->
+	<div class="space-y-3">
+		<h3 class="text-lg font-semibold text-teal-primary">Usuarios</h3>
+		<p class="text-sm text-muted">
+			Cuentas que iniciaron sesión con Google. Asigne un rol explícito (prevalece sobre el dominio)
+			o revierta al rol del dominio.
+		</p>
+
+		{#if data.users.length === 0}
+			<p
+				class="rounded-lg border border-border bg-surface p-6 text-center text-sm text-muted shadow-sm"
+			>
+				No hay usuarios todavía.
+			</p>
+		{:else}
+			<div class="overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
+				<table class="w-full text-sm">
+					<thead class="bg-bg text-left text-xs tracking-wide text-muted uppercase">
+						<tr>
+							<th class="px-3 py-2 font-semibold">Email</th>
+							<th class="px-3 py-2 font-semibold">Último acceso</th>
+							<th class="px-3 py-2 font-semibold">Origen</th>
+							<th class="px-3 py-2 font-semibold">Rol</th>
+							<th class="w-44 px-3 py-2"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each data.users as user (user.id)}
+							{@const isSelf = user.email === data.currentEmail}
+							<tr class="border-t border-border">
+								<td class="px-3 py-2">
+									{user.email}
+									{#if isSelf}
+										<span class="text-xs text-muted">(usted)</span>
+									{/if}
+								</td>
+								<td class="px-3 py-2 whitespace-nowrap text-muted">
+									{user.lastSignInAt ? formatDateTime(user.lastSignInAt) : 'Nunca'}
+								</td>
+								<td class="px-3 py-2">{sourceLabel(user.source)}</td>
+								<td class="px-3 py-2">
+									<form
+										method="POST"
+										action="?/setUserRole"
+										use:enhance
+										class="flex items-center gap-2"
+									>
+										<input type="hidden" name="email" value={user.email} />
+										<select
+											name="role"
+											value={user.role ?? 'viewer'}
+											disabled={isSelf}
+											class="rounded border border-border px-2 py-1 disabled:opacity-50"
+										>
+											<option value="viewer">Visualizador</option>
+											<option value="admin">Administrador</option>
+										</select>
+										<button
+											type="submit"
+											disabled={isSelf}
+											class="rounded bg-teal-primary px-2.5 py-1 text-xs font-medium text-white transition hover:bg-teal-dark disabled:opacity-50"
+										>
+											Guardar
+										</button>
+									</form>
+								</td>
+								<td class="w-44 px-3 py-2 text-right whitespace-nowrap">
+									{#if user.source === 'email' && !isSelf}
+										<form
+											method="POST"
+											action="?/clearUserRole"
+											use:enhance
+											onsubmit={(e) => {
+												if (!confirm(`¿Revertir ${user.email} al rol del dominio?`))
+													e.preventDefault();
+											}}
+										>
+											<input type="hidden" name="email" value={user.email} />
+											<button type="submit" class="text-severity-critico hover:underline">
+												Revertir a dominio
+											</button>
+										</form>
+									{/if}
 								</td>
 							</tr>
 						{/each}

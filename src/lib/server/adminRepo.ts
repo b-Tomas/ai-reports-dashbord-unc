@@ -80,6 +80,40 @@ export async function removeAccess(supabase: SupabaseClient, id: string): Promis
 }
 
 // ---------------------------------------------------------------------------
+// Per-user role overrides — an exact-email row in dashboard_access beats the
+// user's domain rule (see `effectiveAccess` in auth.ts). Used by the /admin
+// "Usuarios" panel to grant/change a single user's role.
+// ---------------------------------------------------------------------------
+
+/** Set/override a single user's role via an exact-email allowlist row (upsert on (type,value)). */
+export async function setUserRole(
+	supabase: SupabaseClient,
+	email: string,
+	role: 'admin' | 'viewer',
+	createdBy: string | null
+): Promise<void> {
+	const { error } = await supabase
+		.from('dashboard_access')
+		.upsert(
+			{ type: 'email', value: email.trim().toLowerCase(), role, created_by: createdBy },
+			{ onConflict: 'type,value' }
+		);
+	if (error) fail(error);
+}
+
+/** Revert a user to their domain default by deleting their email override. False if none existed. */
+export async function clearUserRole(supabase: SupabaseClient, email: string): Promise<boolean> {
+	const { data, error } = await supabase
+		.from('dashboard_access')
+		.delete()
+		.eq('type', 'email')
+		.eq('value', email.trim().toLowerCase())
+		.select('id');
+	if (error) fail(error);
+	return (data?.length ?? 0) > 0;
+}
+
+// ---------------------------------------------------------------------------
 // API keys (api_keys)
 // ---------------------------------------------------------------------------
 export interface ApiKeyEntry {

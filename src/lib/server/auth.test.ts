@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { decideAccess, resolveRole, type Role } from './auth';
+import { decideAccess, effectiveAccess, resolveRole, type Role } from './auth';
 
 describe('decideAccess', () => {
 	it('always allows /api/v1 (handled by the key hook)', () => {
@@ -68,6 +68,28 @@ describe('decideAccess', () => {
 				});
 			});
 		}
+	});
+});
+
+describe('effectiveAccess', () => {
+	const rows = [
+		{ type: 'email', value: 'jdoe@unc.edu.ar', role: 'admin' },
+		{ type: 'domain', value: 'unc.edu.ar', role: 'viewer' }
+	];
+
+	it('exact email wins over domain, reporting source "email" (case-insensitive + trim)', () => {
+		expect(effectiveAccess(rows, '  JDoe@UNC.edu.ar ')).toEqual({ role: 'admin', source: 'email' });
+	});
+
+	it('falls back to the domain rule with source "domain"', () => {
+		expect(effectiveAccess(rows, 'someone@unc.edu.ar')).toEqual({
+			role: 'viewer',
+			source: 'domain'
+		});
+	});
+
+	it('no match ⇒ null role and null source', () => {
+		expect(effectiveAccess(rows, 'x@gmail.com')).toEqual({ role: null, source: null });
 	});
 });
 

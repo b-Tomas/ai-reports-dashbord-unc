@@ -10,6 +10,32 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type Role = 'admin' | 'viewer';
 
+/** Where an effective role came from: an exact-email override, a domain rule, or no match. */
+export type AccessSource = 'email' | 'domain' | null;
+export interface EffectiveAccess {
+	role: Role | null;
+	source: AccessSource;
+}
+
+/**
+ * Pure best-match of an email against dashboard_access rows: an exact `email`
+ * entry wins over a `domain` entry; no match ⇒ `{ role: null, source: null }`.
+ * Single source of truth for precedence — used by `resolveRole` (request-time)
+ * and the admin user list (`listDashboardUsers`).
+ */
+export function effectiveAccess(
+	rows: { type: string; value: string; role: string }[],
+	email: string
+): EffectiveAccess {
+	const lower = email.trim().toLowerCase();
+	const domain = lower.split('@')[1] ?? '';
+	const exact = rows.find((r) => r.type === 'email' && r.value === lower);
+	if (exact) return { role: exact.role as Role, source: 'email' };
+	const byDomain = rows.find((r) => r.type === 'domain' && r.value === domain);
+	if (byDomain) return { role: byDomain.role as Role, source: 'domain' };
+	return { role: null, source: null };
+}
+
 /**
  * Resolve a user's role from the allowlist. Exact email match wins over a domain
  * match; null = not allowlisted (access denied). Uses the service-role client
@@ -23,11 +49,7 @@ export async function resolveRole(supabase: SupabaseClient, email: string): Prom
 		.select('type, value, role')
 		.in('value', [lower, domain]);
 	if (dbError || !data) return null;
-
-	const exact = data.find((r) => r.type === 'email' && r.value === lower);
-	if (exact) return exact.role as Role;
-	const byDomain = data.find((r) => r.type === 'domain' && r.value === domain);
-	return byDomain ? (byDomain.role as Role) : null;
+	return effectiveAccess(data, email).role;
 }
 
 export type AccessDecision = { type: 'allow' } | { type: 'redirect'; to: string };
