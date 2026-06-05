@@ -1,11 +1,11 @@
 /**
- * Server hooks — three composed handles (run in order via `sequence`):
+ * Server hooks: three composed handles (run in order via `sequence`):
  *
- *  1. apiV1Handle      — API-key auth + usage logging for `/api/v1/*` (Block 3).
- *  2. supabaseHandle   — per-request Supabase SSR client + `safeGetSession`.
- *  3. authGuardHandle  — derive allowlist role, guard all dashboard routes.
+ *  1. apiV1Handle      API-key auth + usage logging for `/api/v1/*`.
+ *  2. supabaseHandle   per-request Supabase SSR client + `safeGetSession`.
+ *  3. authGuardHandle  derive allowlist role, guard all dashboard routes.
  *
- * Handles 2–3 skip `/api/v1/*` (agents use Bearer keys, not cookies); handle 1
+ * Handles 2 and 3 skip `/api/v1/*` (agents use Bearer keys, not cookies); handle 1
  * passes non-API requests straight through.
  */
 import { redirect, type Handle } from '@sveltejs/kit';
@@ -68,7 +68,7 @@ const supabaseHandle: Handle = async ({ event, resolve }) => {
 
 const authGuardHandle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/api/v1')) return resolve(event);
-	// Asset / unmatched requests have no route id — never guard them.
+	// Asset / unmatched requests have no route id, so never guard them.
 	if (!event.route.id) return resolve(event);
 
 	// Seed the first admin from SUPER_ADMIN_EMAIL once per server instance.

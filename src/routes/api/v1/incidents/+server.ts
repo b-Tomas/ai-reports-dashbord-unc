@@ -4,7 +4,7 @@ import { IncidentReportCreate } from '$lib/domain/incident';
 import { apiError, validationError } from '$lib/domain/errors';
 import { createIncident, listIncidents, parseListParams } from '$lib/server/incidentsRepo';
 
-// POST /api/v1/incidents — create (SPEC §4.1)
+// POST /api/v1/incidents: create
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const supabase = locals.serviceClient;
 
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 };
 
-// GET /api/v1/incidents — list with filters + pagination (SPEC §4.3)
+// GET /api/v1/incidents: list with filters + pagination
 export const GET: RequestHandler = async ({ url, locals }) => {
 	const supabase = locals.serviceClient;
 

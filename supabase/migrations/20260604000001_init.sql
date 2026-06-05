@@ -1,6 +1,6 @@
--- Incident Reports Dashboard — initial schema (SPEC §3).
+-- Incident Reports Dashboard: initial schema.
 --
--- MVP note: NO Row Level Security policies are defined. The SvelteKit server
+-- Note: NO Row Level Security policies are defined. The SvelteKit server
 -- uses the Supabase service-role key for ALL database access (the /api/v1 routes
 -- and the dashboard server loads/actions). The anon/public role must NOT be
 -- granted access to these tables. RLS is deliberately out of scope for the MVP.
@@ -9,18 +9,18 @@
 -- extension is required.
 
 -- ---------------------------------------------------------------------------
--- Enums (SPEC §3.5)
+-- Enums
 -- ---------------------------------------------------------------------------
--- Note: incident_type / severity_level / status are NOT DB enums — they live
--- inside the `incidents.data` jsonb and are validated by zod (Block 2), per the
--- "store the JSON" decision (SPEC §2).
+-- Note: incident_type / severity_level / status are NOT DB enums; they live
+-- inside the `incidents.data` jsonb and are validated by zod, following the
+-- "store the JSON" decision.
 create type dashboard_access_type as enum ('email', 'domain');
 create type dashboard_access_role as enum ('admin', 'viewer');
 
 -- ---------------------------------------------------------------------------
 -- Shared trigger: auto-bump updated_at on every UPDATE
 -- ---------------------------------------------------------------------------
--- Guarantees the SPEC §3.1 / §4.4 contract ("PATCH bumps updated_at")
+-- Guarantees the "PATCH bumps updated_at" contract
 -- regardless of what the application sends.
 create or replace function public.set_updated_at()
 returns trigger
@@ -33,14 +33,14 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
--- Immutable ISO-8601 → timestamptz parser (needed for the timestamp index)
+-- Immutable ISO-8601 to timestamptz parser (needed for the timestamp index)
 -- ---------------------------------------------------------------------------
 -- A bare `(data ->> 'timestamp')::timestamptz` cannot be indexed: PostgreSQL
--- treats text→timestamptz as STABLE (it can depend on the session TimeZone for
--- strings WITHOUT an offset). Our payloads are ISO-8601 WITH an explicit offset
--- ('Z' or ±hh:mm) — enforced by zod — so the cast is deterministic and can be
--- safely marked IMMUTABLE. Migration 0003 uses this function for the `event_at`
--- generated column that the API filters/orders on.
+-- treats text-to-timestamptz as STABLE (it can depend on the session TimeZone
+-- for strings WITHOUT an offset). Our payloads are ISO-8601 WITH an explicit
+-- offset ('Z' or +/-hh:mm), enforced by zod, so the cast is deterministic and
+-- can be safely marked IMMUTABLE. A later migration uses this function for the
+-- `event_at` generated column that the API filters and orders on.
 create or replace function public.parse_iso_ts(p_text text)
 returns timestamptz
 language sql
@@ -50,7 +50,7 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
--- incidents (SPEC §3.1 / §3.2)
+-- incidents
 -- ---------------------------------------------------------------------------
 create table public.incidents (
   id         uuid primary key default gen_random_uuid(),
@@ -64,7 +64,7 @@ create trigger trg_incidents_updated_at
   before update on public.incidents
   for each row execute function public.set_updated_at();
 
--- Expression indexes for dashboard filters (SPEC §3.1)
+-- Expression indexes for dashboard filters
 create index idx_incidents_incident_type  on public.incidents ((data ->> 'incident_type'));
 create index idx_incidents_severity_level on public.incidents ((data ->> 'severity_level'));
 create index idx_incidents_status         on public.incidents ((data ->> 'status'));
@@ -75,7 +75,7 @@ create index idx_incidents_created_at on public.incidents (created_at desc);
 create index idx_incidents_active     on public.incidents (created_at desc) where deleted_at is null;
 
 -- ---------------------------------------------------------------------------
--- api_keys (SPEC §3.3)
+-- api_keys
 -- ---------------------------------------------------------------------------
 -- created_by logically references the auth.users(id) of the issuing admin.
 -- Kept as a plain uuid (no FK) to avoid coupling to the Supabase auth schema
@@ -91,7 +91,7 @@ create table public.api_keys (
 );
 
 -- ---------------------------------------------------------------------------
--- api_usage (SPEC §3.4) — the ONLY source of agent metrics.
+-- api_usage: the only source of agent metrics.
 -- One row per /api/v1/* request (best-effort insert; never blocks the response).
 -- ---------------------------------------------------------------------------
 create table public.api_usage (
@@ -112,7 +112,7 @@ create index idx_api_usage_route      on public.api_usage (route);
 create index idx_api_usage_method     on public.api_usage (method);
 
 -- ---------------------------------------------------------------------------
--- dashboard_access (SPEC §3.5) — human-login allowlist (domains + emails).
+-- dashboard_access: human-login allowlist (domains + emails).
 -- ---------------------------------------------------------------------------
 create table public.dashboard_access (
   id         uuid primary key default gen_random_uuid(),

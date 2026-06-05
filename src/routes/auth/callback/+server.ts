@@ -10,6 +10,6 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 		const { error } = await supabase.auth.exchangeCodeForSession(code);
 		if (!error) throw redirect(303, next);
 	}
-	// Failed / missing code → back to login.
+	// Failed or missing code: back to login.
 	throw redirect(303, '/login');
 };

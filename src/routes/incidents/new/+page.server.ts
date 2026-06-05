@@ -1,9 +1,8 @@
 /**
- * Create incident via the dashboard (SPEC §4 matrix: POST /incidents = admin/viewer
- * via UI). Any allowlisted user may create — the §8.1 "viewers read-only" rule
- * covers editing/deleting existing reports, not creation. The form goes through
- * the same validated data layer as the agent API (`createIncident`), so both
- * write paths share one contract.
+ * Create incident via the dashboard. Any allowlisted user may create; the
+ * "viewers read-only" rule covers editing and deleting existing reports, not
+ * creation. The form goes through the same validated data layer as the agent
+ * API (`createIncident`), so both write paths share one contract.
  */
 import { fail, redirect } from '@sveltejs/kit';
 import { createServiceClient } from '$lib/server/supabase';

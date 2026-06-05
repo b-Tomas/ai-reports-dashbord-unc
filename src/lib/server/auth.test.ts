@@ -88,7 +88,7 @@ describe('effectiveAccess', () => {
 		});
 	});
 
-	it('no match ⇒ null role and null source', () => {
+	it('no match yields null role and null source', () => {
 		expect(effectiveAccess(rows, 'x@gmail.com')).toEqual({ role: null, source: null });
 	});
 });

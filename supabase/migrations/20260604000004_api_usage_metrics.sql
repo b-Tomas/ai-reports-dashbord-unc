@@ -1,8 +1,8 @@
--- Metrics aggregation (SPEC §3.4 / Block 8). Two STABLE functions the /metrics
+-- Metrics aggregation. Two STABLE functions the /metrics
 -- dashboard calls via PostgREST RPC. Aggregating in SQL (not by fetching rows)
 -- keeps counts exact regardless of PostgREST's row cap.
 --
--- Daily buckets use the display timezone (America/Argentina/Cordoba, SPEC §6) so
+-- Daily buckets use the display timezone (America/Argentina/Cordoba) so
 -- the time series lines up with what users see elsewhere.
 
 create or replace function public.api_usage_daily(p_from timestamptz, p_to timestamptz)

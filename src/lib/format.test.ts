@@ -24,7 +24,7 @@ describe('label + badge maps', () => {
 
 describe('formatDateTime', () => {
 	it('renders an instant in America/Argentina/Cordoba (UTC-3)', () => {
-		// 02:30Z on Jun 4 is 23:30 (11:30 p.m.) on Jun 3 in Córdoba — proves the TZ is applied
+		// 02:30Z on Jun 4 is 23:30 (11:30 p.m.) on Jun 3 in Córdoba, proving the TZ is applied
 		// (a UTC render would say Jun 4 / 2:30). es-AR uses a 12-hour clock.
 		const out = formatDateTime('2026-06-04T02:30:00Z');
 		expect(out).toContain('2026');

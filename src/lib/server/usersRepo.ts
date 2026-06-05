@@ -1,5 +1,5 @@
 /**
- * Dashboard users data layer (SPEC §3.5, §5.1 `/admin`).
+ * Dashboard users data layer.
  *
  * Lists the real Supabase Auth users (everyone who has completed Google OAuth,
  * including currently-denied accounts that only reached `/access-denied`) and

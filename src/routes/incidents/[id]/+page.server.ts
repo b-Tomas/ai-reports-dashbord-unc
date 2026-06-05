@@ -1,8 +1,8 @@
 /**
- * Incident detail (SPEC §5.1 `/incidents/{id}`). Read for everyone allowlisted;
+ * Incident detail. Read for everyone allowlisted;
  * admins can change `status` and soft-delete. Both actions go through the shared
  * incidents data layer (same logic as the agent API) and are admin-guarded
- * server-side — the viewer UI just hides the controls.
+ * server-side; the viewer UI just hides the controls.
  */
 import { error, fail, redirect } from '@sveltejs/kit';
 import { createServiceClient } from '$lib/server/supabase';
@@ -39,7 +39,7 @@ export const actions: Actions = {
 		requireAdmin(locals);
 		const ok = await softDeleteIncident(createServiceClient(), params.id);
 		if (!ok) return fail(404, { message: 'Reporte no encontrado o ya eliminado.' });
-		// Removed from active reports → back to the list.
+		// Removed from active reports, so send the user back to the list.
 		throw redirect(303, '/');
 	}
 };

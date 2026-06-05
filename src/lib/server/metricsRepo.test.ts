@@ -16,7 +16,7 @@ describe('parseRange', () => {
 	it('uses valid query dates and ignores junk', () => {
 		const r = parseRange(sp('from=2026-01-01&to=not-a-date'), NOW);
 		expect(r.fromDate).toBe('2026-01-01');
-		expect(r.toDate).toBe('2026-06-04'); // junk `to` → default
+		expect(r.toDate).toBe('2026-06-04'); // junk `to` falls back to the default
 	});
 });
 

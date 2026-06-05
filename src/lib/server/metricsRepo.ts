@@ -1,7 +1,6 @@
 /**
- * Metrics aggregation (SPEC §3.4, Block 8). Reads `api_usage` via the SQL
- * aggregation RPCs (migration 0004) so counts are exact regardless of row
- * volume. Service-role only.
+ * Metrics aggregation. Reads `api_usage` via the SQL aggregation RPCs so
+ * counts are exact regardless of row volume. Service-role only.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';

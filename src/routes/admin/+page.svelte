@@ -28,7 +28,7 @@
 		</p>
 	{/if}
 
-	<!-- Freshly issued key — shown ONCE -->
+	<!-- Freshly issued key, shown once -->
 	{#if form?.createdKey}
 		<div class="rounded-lg border border-gold/60 bg-gold/10 p-4 shadow-sm">
 			<h3 class="text-sm font-semibold text-gold-dark">

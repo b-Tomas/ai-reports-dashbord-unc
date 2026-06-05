@@ -8,7 +8,7 @@ import {
 	type IncidentReportData
 } from './incident';
 
-// The canonical example from SPEC §4.6.
+// A representative valid payload.
 const validPayload = {
 	timestamp: '2026-06-04T18:30:00Z',
 	location: 'Laboratorio Central - Mesa 4',

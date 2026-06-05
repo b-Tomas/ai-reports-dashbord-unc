@@ -1,5 +1,5 @@
 /**
- * Admin data layer (SPEC §3.3, §3.5, §5.1 `/admin`) — allowlist + API keys.
+ * Admin data layer for the allowlist and API keys.
  * Service-role only; all callers are `requireAdmin`-guarded.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -22,7 +22,7 @@ export interface AccessEntry {
 	created_at: string;
 }
 
-// email → must contain "@"; domain → must NOT (a bare host like "unc.edu.ar").
+// email must contain "@"; domain must not (a bare host like "unc.edu.ar").
 export const accessInputSchema = z
 	.object({
 		type: z.enum(['email', 'domain']),
@@ -80,7 +80,7 @@ export async function removeAccess(supabase: SupabaseClient, id: string): Promis
 }
 
 // ---------------------------------------------------------------------------
-// Per-user role overrides — an exact-email row in dashboard_access beats the
+// Per-user role overrides: an exact-email row in dashboard_access beats the
 // user's domain rule (see `effectiveAccess` in auth.ts). Used by the /admin
 // "Usuarios" panel to grant/change a single user's role.
 // ---------------------------------------------------------------------------

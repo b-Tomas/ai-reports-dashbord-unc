@@ -1,5 +1,5 @@
 /**
- * Trash view (SPEC §5.1 `/admin/trash`, §8) — soft-deleted reports. Admin-only:
+ * Trash view for soft-deleted reports. Admin-only:
  * `requireAdmin` guards the load and both actions. Restore clears `deleted_at`
  * (report reappears in lists); permanent delete removes the row for good.
  */

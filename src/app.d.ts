@@ -10,7 +10,7 @@ declare global {
 			apiKey: { id: string; name: string } | null;
 			/** Incident touched by the handler, for the api_usage log. */
 			incidentId: string | null;
-			/** Per-request Supabase SSR client (cookie-bound, anon key) — dashboard routes. */
+			/** Per-request Supabase SSR client (cookie-bound, anon key) for dashboard routes. */
 			supabase: import('@supabase/supabase-js').SupabaseClient;
 			/** Returns the validated session + user (or nulls). */
 			safeGetSession: () => Promise<{

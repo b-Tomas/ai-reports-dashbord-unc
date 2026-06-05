@@ -1,21 +1,21 @@
--- Bootstrap the first admin (SPEC §3.5 / §6).
+-- Bootstrap the first admin.
 --
 -- `ensure_super_admin(email)` is idempotent: it seeds ONE email/admin row only
--- if the table has no admin yet. It is the single seeding mechanism — the
--- runtime app (later block) reads SUPER_ADMIN_EMAIL from the environment and
--- calls this same function on boot.
+-- if the table has no admin yet. It is the single seeding mechanism: the
+-- runtime app reads SUPER_ADMIN_EMAIL from the environment and calls this same
+-- function on boot.
 
 create or replace function public.ensure_super_admin(p_email text)
 returns void
 language plpgsql
 as $$
 begin
-  -- No email provided → nothing to do.
+  -- No email provided: nothing to do.
   if p_email is null or btrim(p_email) = '' then
     return;
   end if;
 
-  -- An admin already exists → leave the allowlist alone.
+  -- An admin already exists: leave the allowlist alone.
   if exists (select 1 from public.dashboard_access where role = 'admin') then
     return;
   end if;

@@ -1,5 +1,5 @@
 /**
- * Dashboard create-form parsing (SPEC §4: POST /incidents via UI).
+ * Dashboard create-form parsing for POST /incidents via the UI.
  *
  * Turns a human form submission into the same validated `IncidentReportData`
  * the agent API produces, so both write paths hit one contract (`IncidentReportCreate`).
@@ -34,7 +34,7 @@ export type ParseResult =
 /**
  * Córdoba is a fixed UTC-3 offset (no DST), so a `datetime-local` value
  * (`YYYY-MM-DDTHH:mm`, optionally with seconds) is anchored by appending the
- * `-03:00` offset — satisfying `z.iso.datetime({ offset: true })`. Empty input
+ * `-03:00` offset, satisfying `z.iso.datetime({ offset: true })`. Empty input
  * stays '' so zod reports the required-field error rather than a bogus instant.
  */
 export function cordobaLocalToIso(local: string): string {

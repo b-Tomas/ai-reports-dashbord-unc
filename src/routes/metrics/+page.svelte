@@ -93,7 +93,7 @@
 <section class="space-y-6">
 	<h2 class="text-xl font-semibold text-teal-primary">Métricas de la API del agente</h2>
 
-	<!-- Date range (GET → query string) -->
+	<!-- Date range (GET form, serialized to the query string) -->
 	<form
 		method="GET"
 		class="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-surface p-4 shadow-sm"

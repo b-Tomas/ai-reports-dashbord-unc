@@ -1,9 +1,9 @@
 /**
- * Incident data-access layer (SPEC §3, §4). The agent API routes and the Block 6
- * dashboard server actions both go through here — "same server-side DB logic".
+ * Incident data-access layer. The agent API routes and the dashboard server
+ * actions both go through here so the server-side DB logic stays shared.
  *
  * Soft-deleted rows (`deleted_at IS NOT NULL`) are excluded from every read and
- * mutation; they are only reachable via the trash view (Block 7).
+ * mutation; they are only reachable via the trash view.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
@@ -28,14 +28,14 @@ export function isUuid(value: string): boolean {
 
 function fail(error: unknown): never {
 	// supabase-js rejects with a PostgrestError plain object ({ message, details,
-	// hint, code }), not an Error — so `String(error)` would be "[object Object]".
+	// hint, code }), not an Error, so `String(error)` would be "[object Object]".
 	// Pull out the useful fields instead.
 	let message: string;
 	if (error instanceof Error) {
 		message = error.message;
 	} else if (error && typeof error === 'object') {
 		const e = error as { message?: string; details?: string; hint?: string; code?: string };
-		message = [e.message, e.details, e.hint, e.code && `(${e.code})`].filter(Boolean).join(' — ');
+		message = [e.message, e.details, e.hint, e.code && `(${e.code})`].filter(Boolean).join(' - ');
 		if (!message) message = JSON.stringify(error);
 	} else {
 		message = String(error);
@@ -44,7 +44,7 @@ function fail(error: unknown): never {
 }
 
 // ---------------------------------------------------------------------------
-// List query parsing (SPEC §4.3)
+// List query parsing
 // ---------------------------------------------------------------------------
 export interface ListParams {
 	status?: string;
@@ -96,7 +96,7 @@ function clampInt(raw: string | undefined, def: number, min: number, max: number
 	return Math.min(Math.max(n, min), max);
 }
 
-/** Parse + validate list query params. Bad filter/date values yield a ZodError (→ 400). */
+/** Parse + validate list query params. Bad filter/date values yield a ZodError (a 400). */
 export function parseListParams(
 	searchParams: URLSearchParams
 ): { ok: true; params: ListParams } | { ok: false; error: z.ZodError } {
@@ -228,7 +228,7 @@ export async function softDeleteIncident(supabase: SupabaseClient, id: string): 
 }
 
 // ---------------------------------------------------------------------------
-// Trash view (SPEC §5.1 `/admin/trash`, §8) — soft-deleted rows only.
+// Trash view: soft-deleted rows only.
 // ---------------------------------------------------------------------------
 const TRASH_COLUMNS = 'id, created_at, updated_at, deleted_at, data';
 
@@ -261,7 +261,7 @@ export async function restoreIncident(supabase: SupabaseClient, id: string): Pro
 	return (rows?.length ?? 0) > 0;
 }
 
-/** Permanently delete a row — only if it is already in the trash (soft-deleted). */
+/** Permanently delete a row, only if it is already in the trash (soft-deleted). */
 export async function hardDeleteIncident(supabase: SupabaseClient, id: string): Promise<boolean> {
 	const { data: rows, error } = await supabase
 		.from(TABLE)

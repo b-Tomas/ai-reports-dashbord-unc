@@ -1,7 +1,7 @@
 /**
- * Metrics dashboard (SPEC §5.1 `/metrics`, §3.4). Aggregates `api_usage` over a
- * date range. Visible to any allowlisted user (read-only panel) — the guard
- * already blocks non-allowlisted sessions.
+ * Metrics dashboard. Aggregates `api_usage` over a date range. Visible to any
+ * allowlisted user (read-only panel); the guard already blocks non-allowlisted
+ * sessions.
  */
 import { createServiceClient } from '$lib/server/supabase';
 import { getMetrics, parseRange } from '$lib/server/metricsRepo';

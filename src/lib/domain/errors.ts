@@ -1,9 +1,9 @@
 /**
- * Shared API error envelope (SPEC shared convention):
+ * Shared API error envelope:
  *   { "error": { "code", "message", "details"? } }
  *
  * `formatZodError` turns a zod validation failure into field-level `details` so
- * the agent can self-correct (SPEC §4.1).
+ * the agent can self-correct.
  */
 import { z } from 'zod';
 

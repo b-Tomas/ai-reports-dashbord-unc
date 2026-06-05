@@ -1,7 +1,7 @@
 /**
- * api_usage logging (SPEC §3.4) — the only source of agent metrics.
+ * api_usage logging: the only source of agent metrics.
  * One row per /api/v1/* request; inserts are best-effort and must never throw
- * into the response (SPEC §6).
+ * into the response.
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -39,7 +39,7 @@ export async function logApiUsage(supabase: SupabaseClient, row: ApiUsageRow): P
 	try {
 		await supabase.from('api_usage').insert(row);
 	} catch (err) {
-		// Logging must never break the request (SPEC §6) — swallow, but stay observable.
+		// Logging must never break the request, so swallow but stay observable.
 		console.warn('api_usage insert failed', err);
 	}
 }

@@ -6,7 +6,7 @@ import { getIncident, updateIncident, softDeleteIncident, isUuid } from '$lib/se
 
 const notFound = () => json(apiError('not_found', 'Incident not found'), { status: 404 });
 
-// GET /api/v1/incidents/{id} (SPEC §4.2) — soft-deleted ⇒ 404
+// GET /api/v1/incidents/{id}: soft-deleted rows return 404
 export const GET: RequestHandler = async ({ params, locals }) => {
 	if (!isUuid(params.id)) return notFound();
 	const supabase = locals.serviceClient;
@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 	}
 };
 
-// PATCH /api/v1/incidents/{id} (SPEC §4.4) — partial merge, bumps updated_at
+// PATCH /api/v1/incidents/{id}: partial merge, bumps updated_at
 export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 	if (!isUuid(params.id)) return notFound();
 	const supabase = locals.serviceClient;
@@ -50,7 +50,7 @@ export const PATCH: RequestHandler = async ({ params, request, locals }) => {
 	}
 };
 
-// DELETE /api/v1/incidents/{id} (SPEC §4.5) — soft delete, 204
+// DELETE /api/v1/incidents/{id}: soft delete, 204
 export const DELETE: RequestHandler = async ({ params, locals }) => {
 	if (!isUuid(params.id)) return notFound();
 	const supabase = locals.serviceClient;

@@ -52,7 +52,7 @@
 		</div>
 	</div>
 
-	<!-- Filters (GET → query string) -->
+	<!-- Filters (GET form, serialized to the query string) -->
 	<form
 		method="GET"
 		class="grid grid-cols-1 gap-3 rounded-lg border border-border bg-surface p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-6"

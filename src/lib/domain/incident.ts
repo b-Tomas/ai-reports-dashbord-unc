@@ -1,5 +1,5 @@
 /**
- * Incident report domain layer — the canonical contract (SPEC §3.2).
+ * Incident report domain layer: the canonical contract.
  *
  * This is the single source of truth for the IncidentReport shape that the
  * separate LangChain agent must produce. Enum values are Spanish (UNC Safety
@@ -11,7 +11,7 @@
 import { z } from 'zod';
 
 // ---------------------------------------------------------------------------
-// Enums (SPEC §3.2)
+// Enums
 // ---------------------------------------------------------------------------
 export const INCIDENT_TYPES = ['DERRAME', 'INCENDIO', 'EXPOSICION', 'FUGA_GAS'] as const;
 export const SEVERITY_LEVELS = ['BAJO', 'MEDIO', 'ALTO', 'CRITICO'] as const;
@@ -26,21 +26,21 @@ export type SeverityLevel = z.infer<typeof severityLevelSchema>;
 export type Status = z.infer<typeof statusSchema>;
 
 // ---------------------------------------------------------------------------
-// Chemical sub-object (SPEC §3.2)
+// Chemical sub-object
 // ---------------------------------------------------------------------------
 export const chemicalSchema = z.strictObject({
 	name: z.string().min(1),
-	hazard_class: z.string().min(1).optional(), // renamed from doc's `simplt_class`
+	hazard_class: z.string().min(1).optional(),
 	estimated_quantity: z.string().min(1).optional()
 });
 export type Chemical = z.infer<typeof chemicalSchema>;
 
 // ---------------------------------------------------------------------------
-// IncidentReport — writable fields (SPEC §3.2)
+// IncidentReport writable fields
 // ---------------------------------------------------------------------------
-// Timestamps require an explicit offset ('Z' or ±hh:mm); local-only strings are
-// rejected. This keeps the value a deterministic instant so the DB can index it
-// via public.parse_iso_ts (see supabase migration 0001 / Block 1).
+// Timestamps require an explicit offset ('Z' or a +/-hh:mm offset); local-only
+// strings are rejected. This keeps the value a deterministic instant so the DB
+// can index it via public.parse_iso_ts (see the initial supabase migration).
 const writableShape = {
 	timestamp: z.iso.datetime({ offset: true }),
 	location: z.string().min(1),
@@ -53,7 +53,7 @@ const writableShape = {
 } as const;
 
 /**
- * POST body — a full create. `chemicals_involved` defaults to `[]` when omitted.
+ * POST body: a full create. `chemicals_involved` defaults to `[]` when omitted.
  * Strict: unknown keys are rejected so the agent gets a clear 422.
  */
 export const IncidentReportCreate = z.strictObject({
@@ -63,7 +63,7 @@ export const IncidentReportCreate = z.strictObject({
 export type IncidentReportCreate = z.infer<typeof IncidentReportCreate>;
 
 /**
- * PATCH body — a partial update. No defaults: an omitted field is simply not
+ * PATCH body: a partial update. No defaults: an omitted field is simply not
  * present, so the caller's merge leaves the stored value untouched (we must NOT
  * silently wipe `chemicals_involved` to `[]`). Still strict.
  */
@@ -76,7 +76,7 @@ export type IncidentReportPatch = z.infer<typeof IncidentReportPatch>;
 /** Validated report payload as stored in `incidents.data`. */
 export type IncidentReportData = z.infer<typeof IncidentReportCreate>;
 
-/** Full API response shape (SPEC §3.2): payload + operational columns. */
+/** Full API response shape: payload + operational columns. */
 export type IncidentReport = IncidentReportData & {
 	id: string;
 	created_at: string;

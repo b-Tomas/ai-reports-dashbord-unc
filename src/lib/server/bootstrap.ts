@@ -1,5 +1,5 @@
 /**
- * First-admin bootstrap (SPEC §3.5 / §6).
+ * First-admin bootstrap.
  *
  * Reads SUPER_ADMIN_EMAIL at runtime and calls the idempotent
  * `ensure_super_admin` DB function (seeds an admin only if none exists). This is
@@ -29,7 +29,7 @@ export function runBootstrapOnce(): Promise<void> {
 		started = (async () => {
 			const { env } = await import('$env/dynamic/private');
 			const email = env.SUPER_ADMIN_EMAIL?.trim();
-			if (!email) return; // nothing configured → nothing to seed
+			if (!email) return; // nothing configured, nothing to seed
 			try {
 				const { createServiceClient } = await import('./supabase');
 				await ensureSuperAdmin(createServiceClient(), email);

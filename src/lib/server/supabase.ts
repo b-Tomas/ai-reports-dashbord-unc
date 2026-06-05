@@ -1,7 +1,7 @@
 /**
- * Server-only Supabase client factory (SPEC §2, §6).
+ * Server-only Supabase client factory.
  *
- * Uses the SERVICE-ROLE key — never import this from client code. supabase-js
+ * Uses the service-role key, so never import this from client code. supabase-js
  * talks to PostgREST over HTTP (not raw Postgres TCP), which is what Netlify
  * functions need to avoid connection exhaustion.
  *

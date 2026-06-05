@@ -11,8 +11,8 @@
 	const fieldErrors = $derived(form?.fieldErrors ?? {});
 	const v = $derived(form?.values);
 
-	// Dynamic rows. Intentionally seeded ONCE from the submitted values on a failed
-	// POST — this is a plain form submit (no `enhance`), so the component remounts
+	// Dynamic rows. Intentionally seeded once from the submitted values on a failed
+	// POST: this is a plain form submit (no `enhance`), so the component remounts
 	// and this initial capture is exactly the repopulated state we want. `untrack`
 	// marks the one-time read so it isn't treated as a stale reactive reference.
 	// `actions` rows are wrapped as objects so each row binds to a stable reference

@@ -1,5 +1,5 @@
 /**
- * Admin console (SPEC §5.1 `/admin`) — allowlist + API keys. Admin-only:
+ * Admin console for the allowlist and API keys. Admin-only:
  * `requireAdmin` guards the load and every action (viewers get 403).
  */
 import { fail } from '@sveltejs/kit';
@@ -60,7 +60,7 @@ export const actions: Actions = {
 		const name = String((await request.formData()).get('name') ?? '').trim();
 		if (!name) return fail(400, { message: 'El nombre de la clave es obligatorio.' });
 		const created = await createApiKey(createServiceClient(), name, locals.user?.id ?? null);
-		// Plaintext returned ONCE here — shown by the page, never persisted.
+		// Plaintext returned once here, shown by the page, never persisted.
 		return { createdKey: created };
 	},
 

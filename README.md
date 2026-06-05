@@ -2,12 +2,11 @@
 
 Dashboard for laboratory incident reports. A separate LangChain agent writes
 reports over a Bearer-key REST API (`/api/v1`); humans review them in a Google-
-OAuth dashboard gated by an admin-managed allowlist. Full contract in
-[`PRD/SPEC.md`](PRD/SPEC.md); build plan in [`PRD/IMPLEMENTATION.md`](PRD/IMPLEMENTATION.md).
+OAuth dashboard gated by an admin-managed allowlist.
 
 ## Stack
 
-SvelteKit 2 (Svelte 5 runes) · TypeScript · Tailwind CSS v4 · Supabase
+SvelteKit 2 · TypeScript · Tailwind CSS v4 · Supabase
 (Postgres + Auth + PostgREST) · Chart.js · `@sveltejs/adapter-netlify`.
 
 The server uses the Supabase **service-role** key for all DB access (no RLS).

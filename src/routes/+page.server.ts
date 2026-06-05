@@ -1,5 +1,5 @@
 /**
- * Reports list (SPEC §5.1 `/`). Server `load` queries Supabase with the service
+ * Reports list. Server `load` queries Supabase with the service
  * role (same data layer as the agent API), excluding soft-deleted rows. Filters
  * (type/severity/status/date range) + pagination come from the query string.
  */

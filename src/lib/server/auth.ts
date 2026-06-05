@@ -1,9 +1,9 @@
 /**
- * Human (dashboard) auth helpers (SPEC §2, §3.5, §5.1).
+ * Human (dashboard) auth helpers.
  *
  * Login is Google OAuth via Supabase Auth. Access is gated by the
- * `dashboard_access` allowlist: a logging-in user's role is the best match —
- * exact email beats domain — and no match means access denied.
+ * `dashboard_access` allowlist: a logging-in user's role is the best match
+ * (an exact email beats a domain), and no match means access denied.
  */
 import { error } from '@sveltejs/kit';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -19,9 +19,9 @@ export interface EffectiveAccess {
 
 /**
  * Pure best-match of an email against dashboard_access rows: an exact `email`
- * entry wins over a `domain` entry; no match ⇒ `{ role: null, source: null }`.
- * Single source of truth for precedence — used by `resolveRole` (request-time)
- * and the admin user list (`listDashboardUsers`).
+ * entry wins over a `domain` entry; no match yields `{ role: null, source: null }`.
+ * This is the single source of truth for precedence, used by `resolveRole`
+ * (request-time) and the admin user list (`listDashboardUsers`).
  */
 export function effectiveAccess(
 	rows: { type: string; value: string; role: string }[],
@@ -56,7 +56,7 @@ export type AccessDecision = { type: 'allow' } | { type: 'redirect'; to: string 
 
 /**
  * Decide what to do with a request given its path, whether there's a session,
- * and the allowlist role. Pure — unit tested exhaustively.
+ * and the allowlist role. Pure, so unit tested exhaustively.
  *
  * - `/api/v1/*` is handled by the API-key hook, never here.
  * - Public routes: `/login`, `/access-denied`, `/auth/*`.
@@ -88,7 +88,7 @@ export function decideAccess(input: {
 	return { type: 'allow' };
 }
 
-/** Guard for admin-only actions/loads (Blocks 6–7). Throws 403 for non-admins. */
+/** Guard for admin-only actions/loads. Throws 403 for non-admins. */
 export function requireAdmin(locals: App.Locals): void {
 	if (locals.role !== 'admin') {
 		throw error(403, 'Solo los administradores pueden realizar esta acción.');

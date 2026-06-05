@@ -1,8 +1,8 @@
 /**
- * Presentation helpers for the dashboard (SPEC §5.2/§5.3). Pure + client-safe
+ * Presentation helpers for the dashboard. Pure + client-safe
  * (no server imports) so both `load` data and Svelte components can use them.
  *
- * Enum values are stored in Spanish-uppercase (SPEC §3.2); these map them to
+ * Enum values are stored in Spanish-uppercase; these map them to
  * human labels, severity color cues, and Córdoba-local timestamps.
  */
 import type { IncidentType, SeverityLevel, Status } from './domain/incident';
@@ -27,7 +27,7 @@ export const STATUS_LABELS: Record<Status, string> = {
 	RESUELTO: 'Resuelto'
 };
 
-/** Badge classes per severity — the §5.3 color cues (green/gold/orange/red). */
+/** Badge classes per severity: the color cues (green/gold/orange/red). */
 export const SEVERITY_BADGE: Record<SeverityLevel, string> = {
 	BAJO: 'bg-severity-bajo/10 text-severity-bajo',
 	MEDIO: 'bg-gold/40 text-gold-dark',
@@ -42,7 +42,7 @@ export const STATUS_BADGE: Record<Status, string> = {
 	RESUELTO: 'bg-muted/15 text-muted'
 };
 
-// Store UTC, display America/Argentina/Cordoba (SPEC §6).
+// Store UTC, display America/Argentina/Cordoba.
 const dateTimeFmt = new Intl.DateTimeFormat('es-AR', {
 	timeZone: 'America/Argentina/Cordoba',
 	dateStyle: 'medium',
