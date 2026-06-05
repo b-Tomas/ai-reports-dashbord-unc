@@ -15,7 +15,8 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
-	<!-- Branding header (placeholder shell — Block 9 finalizes) -->
+	<!-- FCEFyN brand bar: gold accent over the teal-bordered header (palette §5.3). -->
+	<div class="h-1 bg-gold"></div>
 	<header class="border-b-4 border-teal-primary bg-surface shadow-sm">
 		<div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
 			<img src="/FCEFyN.png" alt="FCEFyN" class="h-11 w-auto sm:h-12" />

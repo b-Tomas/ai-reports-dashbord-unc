@@ -1,5 +1,11 @@
 # Netlify build config for SvelteKit (@sveltejs/adapter-netlify).
 # The adapter emits serverless functions + static assets into `build/`.
+# Set the runtime env vars (PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY,
+# SUPABASE_SERVICE_ROLE_KEY, SUPER_ADMIN_EMAIL) in the Netlify site settings —
+# never commit them. See README "Deploy to Netlify".
 [build]
   command = "npm run build"
   publish = "build"
+
+[build.environment]
+  NODE_VERSION = "22"
