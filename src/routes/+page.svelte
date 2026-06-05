@@ -37,11 +37,19 @@
 </script>
 
 <section class="space-y-4">
-	<div class="flex items-center justify-between">
+	<div class="flex items-center justify-between gap-3">
 		<h2 class="text-xl font-semibold text-teal-primary">Reportes de incidentes</h2>
-		{#if result}
-			<span class="text-sm text-muted">{total} {total === 1 ? 'reporte' : 'reportes'}</span>
-		{/if}
+		<div class="flex items-center gap-3">
+			{#if result}
+				<span class="text-sm text-muted">{total} {total === 1 ? 'reporte' : 'reportes'}</span>
+			{/if}
+			<a
+				href={resolve('/incidents/new')}
+				class="rounded bg-teal-primary px-3 py-1.5 text-sm font-medium text-white transition hover:bg-teal-dark"
+			>
+				Nuevo reporte
+			</a>
+		</div>
 	</div>
 
 	<!-- Filters (GET → query string) -->

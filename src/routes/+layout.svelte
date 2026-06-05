@@ -37,6 +37,9 @@
 			>
 				<nav class="flex items-center gap-4">
 					<a href={resolve('/')} class="font-medium text-teal-primary hover:underline">Reportes</a>
+					<a href={resolve('/incidents/new')} class="font-medium text-teal-primary hover:underline">
+						Nuevo reporte
+					</a>
 					<a href={resolve('/metrics')} class="font-medium text-teal-primary hover:underline">
 						Métricas
 					</a>
