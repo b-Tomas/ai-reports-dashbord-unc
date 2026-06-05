@@ -1,5 +1,12 @@
 # Panel de Reportes de Incidentes - FCEFyN, UNC
 
+![SvelteKit](https://img.shields.io/badge/SvelteKit-2-FF3E00?style=flat-square&logo=svelte&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)
+![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white)
+[![Live demo](https://img.shields.io/badge/demo-live-00C7B7?style=flat-square&logo=netlify&logoColor=white)](https://ai-2026-tl2-reports-dashboard.netlify.app/)
+
 > Group deliverable for the artificial intelligence course at FCEFyN, Universidad Nacional de Córdoba. See [`notebooks/TL2.ipynb`](notebooks/TL2.ipynb).
 
 > [!NOTE]
