@@ -73,6 +73,90 @@ allowlist has no admin yet; manage further entries from `/admin`.
 copy it. Use it as `Authorization: Bearer <key>` against `/api/v1` (try the
 requests in [`api.http`](api.http)). Revoke from the same screen.
 
+### Testing the API with curl
+
+Full contract in [SPEC §4](PRD/SPEC.md). The same flows in REST Client format
+live in [`api.http`](api.http). Set the base URL and key once, then run the
+commands below (uses `-i` to show the status line; `jq` is optional):
+
+```sh
+BASE=http://localhost:5173
+KEY=irk_REPLACE_ME            # plaintext key from /admin → Claves de API
+```
+
+**Create** (`201` + the full report with server `id`/`created_at`):
+
+```sh
+curl -i -X POST "$BASE/api/v1/incidents" \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d '{
+    "timestamp": "2026-06-04T18:30:00Z",
+    "location": "Laboratorio Central - Mesa 4",
+    "incident_type": "DERRAME",
+    "severity_level": "MEDIO",
+    "chemicals_involved": [
+      { "name": "Ácido Acético Glacial", "hazard_class": "Clase B y Clase E", "estimated_quantity": "250 ml" }
+    ],
+    "actions_taken": ["Se evacuó el área inmediata.", "Se utilizó EPP."],
+    "medical_assistance_required": false,
+    "status": "ABIERTO"
+  }'
+```
+
+Capture the new id for the read/update/delete calls below:
+
+```sh
+ID=$(curl -s -X POST "$BASE/api/v1/incidents" \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d '{"timestamp":"2026-06-04T18:30:00Z","location":"Lab Central","incident_type":"FUGA_GAS","severity_level":"ALTO","actions_taken":["Se ventiló el área."],"medical_assistance_required":true,"status":"ABIERTO"}' \
+  | jq -r .id)
+```
+
+**Invalid create** (`422` with field-level `details` — bad enum + empty `actions_taken`):
+
+```sh
+curl -i -X POST "$BASE/api/v1/incidents" \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d '{"timestamp":"2026-06-04T18:30:00Z","location":"Lab","incident_type":"EXPLOSION","severity_level":"MEDIO","actions_taken":[],"medical_assistance_required":false,"status":"ABIERTO"}'
+```
+
+**Missing key** (`401`; still logged to `api_usage` with a null key):
+
+```sh
+curl -i "$BASE/api/v1/incidents"
+```
+
+**List** with filters + pagination (excludes soft-deleted); `from`/`to` accept a
+date or a full ISO instant:
+
+```sh
+curl -s -H "Authorization: Bearer $KEY" \
+  "$BASE/api/v1/incidents?status=ABIERTO&incident_type=DERRAME&limit=10&offset=0"
+
+curl -s -H "Authorization: Bearer $KEY" \
+  "$BASE/api/v1/incidents?from=2026-01-01&to=2026-12-31"
+```
+
+**Get by id** (`200`; `404` if unknown or soft-deleted):
+
+```sh
+curl -s -H "Authorization: Bearer $KEY" "$BASE/api/v1/incidents/$ID"
+```
+
+**Patch** — partial merge, persists the status transition and bumps `updated_at`:
+
+```sh
+curl -i -X PATCH "$BASE/api/v1/incidents/$ID" \
+  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+  -d '{"status":"EN_PROGRESO"}'
+```
+
+**Delete** — soft delete (`204`; sets `deleted_at`, so the next GET returns `404`):
+
+```sh
+curl -i -X DELETE "$BASE/api/v1/incidents/$ID" -H "Authorization: Bearer $KEY"
+```
+
 ## Develop
 
 ```sh
